@@ -25,7 +25,11 @@ class CreateDatalake:
             'datetime64[ns, UTC]': 'timestamptz',
         }
 
-        columns = [f"{column} {pg_data_types[str(df[column].dtype)]}" for column in df.columns]
+        columns = [
+            "hash_id text UNIQUE NOT NULL"
+        ]
+        columns += [f"{column} {pg_data_types[str(df[column].dtype)]}" for column in df.columns if
+                    column not in ['hash_id']]
 
         create_table_query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
             sql.Identifier(self.table_name),
