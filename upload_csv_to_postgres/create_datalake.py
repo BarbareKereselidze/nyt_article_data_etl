@@ -1,4 +1,3 @@
-import pandas as pd
 from psycopg2 import sql
 
 from utils.postgres_connector import PostgresConnector
@@ -10,26 +9,34 @@ class CreateDatalake:
         self.postgres = PostgresConnector(config)
         self.cursor = self.postgres.get_cursor()
 
-        self.csv_file_path = config['Paths']['clean_csv_path']
-        self.file_path = config['Paths']['csv_file_path']
         self.table_name = config['Postgres']['table_name']
 
         self.logger = get_logger()
 
     def create_table(self):
-        df = pd.read_csv(self.csv_file_path, parse_dates=['pub_date'], nrows=100)
-
-        pg_data_types = {
-            'object': 'text',
-            'float64': 'float8',
-            'datetime64[ns, UTC]': 'timestamptz',
-        }
-
         columns = [
-            "hash_id text UNIQUE NOT NULL"
+            # "id serial PRIMARY KEY",
+            "web_url text UNIQUE NOT NULL",
+            "abstract text",
+            "snippet text",
+            "lead_paragraph text",
+            "print_section text",
+            "print_page float8",
+            "source text",
+            "multimedia jsonb",
+            "headline jsonb",
+            "keywords jsonb",
+            "pub_date timestamptz",
+            "document_type text",
+            "news_desk text",
+            "section_name text",
+            "byline jsonb",
+            "type_of_material text",
+            "_id text",
+            "word_count float8",
+            "uri text",
+            "subsection_name text",
         ]
-        columns += [f"{column} {pg_data_types[str(df[column].dtype)]}" for column in df.columns if
-                    column not in ['hash_id']]
 
         create_table_query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
             sql.Identifier(self.table_name),
@@ -40,4 +47,3 @@ class CreateDatalake:
         self.postgres.close_connection()
 
         return self.logger.info("datalake table created successfully")
-        # return df.info()

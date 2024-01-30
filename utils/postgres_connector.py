@@ -27,6 +27,9 @@ class PostgresConnector:
         self.cursor = self.connection.cursor()
         return self.cursor
 
+    def rollback_changes(self):
+        self.connection.rollback()
+
     def close_connection(self):
         try:
             if self.cursor:

@@ -4,7 +4,6 @@ from psycopg2 import IntegrityError
 from datetime import datetime, timedelta
 
 from helper.get_columns import get_table_columns
-from helper.generate_hash import generate_hash
 from utils.postgres_connector import PostgresConnector
 from utils.logger import get_logger
 
@@ -39,8 +38,7 @@ class APIDataToPostgres:
                 web_url = record.get('web_url')
                 if not web_url:
                     continue
-                hash_value = generate_hash(web_url)
-                values = [hash_value] + [json.dumps(record.get(column)) if isinstance(record.get(column), (dict, list)) else record.get(column, None) for column in self.columns[1:]]
+                values = [json.dumps(record.get(column)) if isinstance(record.get(column), (dict, list)) else record.get(column, None) for column in self.columns]
 
                 sql = f"INSERT INTO {self.table_name} ({', '.join(self.columns)}) VALUES ({', '.join(['%s']*len(values))})"
 
