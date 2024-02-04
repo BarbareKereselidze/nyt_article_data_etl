@@ -1,56 +1,40 @@
-import json
 import requests
-from psycopg2 import IntegrityError
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Dict, Tuple, Union, Any
 
-from helper.get_columns import get_table_columns
-from utils.postgres_connector import PostgresConnector
 from utils.logger import get_logger
 
 
-class APIDataToPostgres:
-    def __init__(self, config):
-        self.postgres = PostgresConnector(config)
-        self.connection = self.postgres.connection
-        self.cursor = self.postgres.get_cursor()
+class APIDataRetriever:
+    def __init__(self, config: Dict[str, Any], begin_date: str) -> None:
+        """ initialize the APIDataRetriever class. """
 
-        self.columns = get_table_columns(config)
-        self.table_name = config['Postgres']['table_name']
+        self.begin_date: str = begin_date
+        self.end_date: str = datetime.now().strftime('%Y-%m-%d')
 
-        self.api_key = config['API']['api_key']
-        self.url = config['API']['api_url']
-        self.params = {'api-key': self.api_key}
+        self.api_key: str = config['API']['api_key']
+        self.url: str = config['API']['api_url']
 
         self.logger = get_logger()
 
-    def insert_data(self):
-        yesterday = datetime.now() - timedelta(days=1)
-        begin_date = yesterday.strftime('%Y%m%d')
-        end_date = datetime.now().strftime('%Y%m%d')
+    def get_api_data(self, page: int) -> Union[None, Tuple[int, dict]]:
+        """ retrieves data from the api.
+            returns: a tuple containing status code and api response json, or (None, None) in case of an error. """
 
-        params = {'api-key': self.api_key, 'begin_date': begin_date, 'end_date': end_date}
-        response = requests.get(self.url, params=params)
+        try:
+            params = {
+                'api-key': self.api_key,
+                'begin_date': self.begin_date,
+                'end_date': self.end_date,
+                'sort': 'oldest',  # sort by eldest date in the start and end date range
+                'page': page
+            }
 
-        if response.status_code == 200:
-            data = response.json()
+            response = requests.get(self.url, params=params)
+            response.raise_for_status()
 
-            for record in data['response']['docs']:
-                web_url = record.get('web_url')
-                if not web_url:
-                    continue
-                values = [json.dumps(record.get(column)) if isinstance(record.get(column), (dict, list)) else record.get(column, None) for column in self.columns]
+            return response.status_code, response.json()
 
-                sql = f"INSERT INTO {self.table_name} ({', '.join(self.columns)}) VALUES ({', '.join(['%s']*len(values))})"
-
-                try:
-                    self.cursor.execute(sql, values)
-                    self.connection.commit()
-                    self.logger.info("Data inserted successfully.")
-                except IntegrityError as e:
-                    self.connection.rollback()
-                    self.logger.warning(f"IntegrityError: {e}")
-
-            self.logger.info("Finished processing today's data.")
-
-        else:
-            self.logger.info(f"Error: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as req_error:
+            self.logger.error(f" request error: {req_error}")
+            return None, None

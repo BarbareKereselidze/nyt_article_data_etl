@@ -1,42 +1,37 @@
 import os
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 from utils.read_config import read_config_file
-from helper.get_columns import get_table_columns
+from utils.logger import get_logger
 
-from clean_data.clean_data import process_csv
-from clean_data.clean_duplicates import clean_duplicates
-
-from upload_csv_to_postgres.create_datalake import CreateDatalake
-from upload_csv_to_postgres.csv_to_postgres import CsvToPostgresLoader
-
-from get_api_data.get_nyt_api import APIDataToPostgres
+from scripts.run_once import run_once
+from scripts.schedulded_run import scheduled_run
 
 
 if __name__ == "__main__":
+    """ create a logger instance """
+    logger = get_logger()
 
-    """ get config file path """
+    """ get config file paths """
     script_directory = os.path.dirname(os.path.abspath(__file__))
     CONFIG_FILE_PATH = os.path.join(script_directory, 'config', 'config.ini')
+    TABLE_CONFIG_PATH = os.path.join(script_directory, 'config', 'table_config.ini')
 
-    """ get file paths dict from a config file """
+    """ get file path dicts from a config file """
     config_dict = read_config_file(CONFIG_FILE_PATH)
+    table_config_dict = read_config_file(TABLE_CONFIG_PATH)
 
-    """ clean the csv with pydantic """
-    process_csv(config_dict)
-    clean_duplicates(config_dict)
+    print(config_dict['API'])
 
-    """ create a postgresql table datalake """
-    table = CreateDatalake(config_dict)
-    table.create_table()
+    """ run the script that doesn't need to be scheduled first """
+    run_once(config_dict, table_config_dict)
 
-    """ upload modified csv data to postgresql """
-    loader = CsvToPostgresLoader(config_dict)
-    loader.copy_data_to_postgres()
-    loader.commit_and_close()
+    """ schedule the script that will be run everyday at 12am """
+    scheduler = BlockingScheduler()
+    scheduler.add_job(scheduled_run, 'cron', hour=0, minute=0, args=[config_dict, table_config_dict])
 
-    """ get new api data """
-    columns = get_table_columns(config_dict)
-    api_loader = APIDataToPostgres(config_dict)
-    api_loader.insert_data()
-
-    """ create a new table for cleaned data """
+    try:
+        logger.info(" scheduler is running. press 'ctrl + c' to exit")
+        scheduler.start()
+    except KeyboardInterrupt:
+        logger.info(" scheduler stopped")

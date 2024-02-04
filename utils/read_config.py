@@ -1,7 +1,10 @@
 import configparser
+from typing import Dict
 
 
-def read_config_file(config_file_path: str) -> dict:
+def read_config_file(config_file_path: str) -> Dict[str, str]:
+    """ read a configuration file and return its contents as a dictionary. """
+
     config_object = configparser.ConfigParser()
 
     with open(config_file_path, "r") as file:
