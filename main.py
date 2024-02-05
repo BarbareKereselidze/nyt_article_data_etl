@@ -21,8 +21,6 @@ if __name__ == "__main__":
     config_dict = read_config_file(CONFIG_FILE_PATH)
     table_config_dict = read_config_file(TABLE_CONFIG_PATH)
 
-    print(config_dict['API'])
-
     """ run the script that doesn't need to be scheduled first """
     run_once(config_dict, table_config_dict)
 
@@ -31,7 +29,7 @@ if __name__ == "__main__":
     scheduler.add_job(scheduled_run, 'cron', hour=0, minute=0, args=[config_dict, table_config_dict])
 
     try:
-        logger.info(" scheduler is running. press 'ctrl + c' to exit")
+        logger.info(" scheduler is running")
         scheduler.start()
     except KeyboardInterrupt:
         logger.info(" scheduler stopped")

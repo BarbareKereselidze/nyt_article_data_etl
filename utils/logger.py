@@ -6,6 +6,10 @@ def get_logger() -> logging.Logger:
         return the logger instance. """
 
     logging.basicConfig(level=logging.INFO)
+
+    # set the level for apscheduler logger to ERROR
+    logging.getLogger('apscheduler').setLevel(logging.ERROR)
+
     logger = logging.getLogger(__name__)
 
     return logger
