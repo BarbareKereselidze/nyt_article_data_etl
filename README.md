@@ -63,7 +63,7 @@ If there is missing API data, the project retrieves it by obtaining the last dat
    Creating a connector for postgresql.
    - **read_config.py**: <br>
    Utility for reading a configuration files.
-   - **main.py**: <br>
+8. **main.py**: <br>
    Main script to run the overall data processing.
 
 
