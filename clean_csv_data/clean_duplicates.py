@@ -24,4 +24,4 @@ class DuplicatesRemover:
         # keep track of how many rows were duplicate for logging
         removed_rows = initial_rows - df.shape[0]
 
-        self.logger.info(f" duplicates removed: {removed_rows}")
+        self.logger.info(f"duplicates removed: {removed_rows}")

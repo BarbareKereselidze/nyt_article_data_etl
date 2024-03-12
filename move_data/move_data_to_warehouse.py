@@ -39,10 +39,10 @@ class MoveCleanDataToWarehouse:
         try:
             self.cursor.execute(move_data_query)
             self.cursor.connection.commit()
-            self.logger.info(" data moved to warehouse table")
+            self.logger.info("data moved to warehouse table")
         except Exception as error:
             self.postgres.rollback_changes()
-            self.logger.error(f" error during move_data: {error}")
+            self.logger.error(f"error during move_data: {error}")
 
     def close_connection(self) -> None:
         """ close database connection. """

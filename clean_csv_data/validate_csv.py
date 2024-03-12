@@ -35,10 +35,10 @@ class CsvValidator:
                     try:
                         model_instance.validate_web_url(model_instance.web_url)
                     except ValueError:
-                        get_logger().error(f" skipping row due to invalid url: {row}")
+                        get_logger().error(f"skipping row due to invalid url: {row}")
                         continue
 
                     validated_row = {**row, **model_instance.dict()}
                     csv_writer.writerow(validated_row)
 
-        self.logger.info(f" clean data is kept at: {self.output_csv_path}")
+        self.logger.info(f"clean data is kept at: {self.output_csv_path}")

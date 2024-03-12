@@ -31,4 +31,4 @@ class CsvToPostgresLoader:
         """ commit changes and close the database connection. """
 
         self.postgres.close_connection()
-        self.logger.info(f" data copied from {self.csv_file_path} to {self.table_name}")
+        self.logger.info(f"data copied from {self.csv_file_path} to {self.table_name}")

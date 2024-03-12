@@ -28,7 +28,7 @@ class DataInserter:
 
         if hasattr(self, 'connection') and self.connection:
             self.postgres.close_connection()
-            self.logger.info(" database connection closed.")
+            self.logger.info("database connection closed.")
 
     def insert_data(self, record: dict) -> None:
         """ check if the data is valid and insert it into the according table. """
@@ -50,12 +50,12 @@ class DataInserter:
                 self.cursor.execute(sql, values)
                 self.connection.commit()
                 """ detailed logging (can be uncommented) """
-                # self.logger.info(f" inserted into {table_name}: {web_url}")
+                # self.logger.info(f"inserted into {table_name}: {web_url}")
 
             # in case of duplicate data rollback connection
             except IntegrityError:
                 """ detailed logging (can be uncommented) """
-                # self.logger.info(f" duplicate data in {table_name}: {web_url}")
+                # self.logger.info(f"duplicate data in {table_name}: {web_url}")
                 self.connection.rollback()
 
             # sleeping for the recommended time for this api
@@ -83,10 +83,10 @@ class DataInserter:
                     page += 1
 
                 else:
-                    self.logger.info(f" error: {status_code} - {data.text}")
+                    self.logger.info(f"error: {status_code} - {data.text}")
                     break
 
             else:
                 break
 
-        self.logger.info(" finished processing new data.")
+        self.logger.info("finished processing new data.")

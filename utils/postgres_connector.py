@@ -47,4 +47,4 @@ class PostgresConnector:
                 self.connection.commit()
                 self.connection.close()
         except Exception as error:
-            self.logger.error(f" the following error occurred, when closing the connection: {error}")
+            self.logger.error(f"the following error occurred, when closing the connection: {error}")

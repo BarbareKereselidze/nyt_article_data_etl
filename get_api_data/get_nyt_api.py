@@ -36,5 +36,5 @@ class APIDataRetriever:
             return response.status_code, response.json()
 
         except requests.exceptions.RequestException as req_error:
-            self.logger.error(f" request error: {req_error}")
+            self.logger.error(f"request error: {req_error}")
             return None, None

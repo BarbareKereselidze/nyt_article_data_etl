@@ -23,7 +23,7 @@ def get_last_date(config: Dict[str, Any]) -> Optional[datetime]:
         return last_date
 
     except psycopg2.Error as error:
-        logger.error(f" error getting last date: {error}")
+        logger.error(f"error getting last date: {error}")
 
     finally:
         postgres_connector.close_connection()

@@ -27,4 +27,4 @@ class CreatePostgresTable:
         self.cursor.execute(create_table_query)
         self.postgres.close_connection()
 
-        self.logger.info(f" {self.table_name} table created successfully")
+        self.logger.info(f"{self.table_name} table created successfully")
